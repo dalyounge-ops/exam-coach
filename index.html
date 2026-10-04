@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>수능 암기장</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b5a8a">
+<link rel="icon" href="icon.svg">
+<style>
+:root{--pri:#2b5a8a;--pri2:#1e4269;--bg:#f5f7fa;--card:#fff;--ink:#1c2733;--mute:#6b7785;--line:#e3e8ee;--ok:#1d8a5a;--ok2:#e3f5eb;--warn:#b4541a;--warn2:#fdeee0;--red:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;background:var(--pri);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:5}
+header h1{font-size:18px;margin:0;flex:1}
+header button{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:8px;padding:6px 12px;font-size:14px}
+#backBtn{display:none}
+nav{position:sticky;top:50px;background:var(--card);display:flex;overflow-x:auto;border-bottom:1px solid var(--line);z-index:4}
+nav button{flex:none;padding:12px 14px;background:none;border:0;font-size:14px;color:var(--mute);border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:var(--pri);border-color:var(--pri);font-weight:700}
+main{max-width:720px;margin:0 auto;padding:14px 14px 60px}
+.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+h2{font-size:17px;margin:0 0 8px}
+h3{font-size:15px;margin:0 0 8px}
+.mute{color:var(--mute);font-size:13px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--ink);font-family:inherit}
+textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grow{flex:1}
+button{cursor:pointer;font-family:inherit}
+.b{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600}
+.b.sec{background:#e7edf3;color:var(--pri2)}
+.b.red{background:#fdeceb;color:var(--red)}
+.b.ok{background:var(--ok2);color:var(--ok)}
+.b:disabled{opacity:.5}
+.list-item{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.05);cursor:pointer}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;background:#eef1f5;color:var(--mute);font-size:12px;margin:2px 4px 2px 0}
+.tag.pri{background:#e7edf3;color:var(--pri2)}
+.tag.ok{background:var(--ok2);color:var(--ok)}
+.tag.warn{background:var(--warn2);color:var(--warn)}
+.notice{background:#fff7e0;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.big{font-size:40px;font-weight:800;color:var(--pri)}
+.stat{display:flex;gap:10px;flex-wrap:wrap}
+.stat .box{flex:1;min-width:90px;background:#f0f4f8;border-radius:12px;padding:12px;text-align:center}
+.stat .box .v{font-size:22px;font-weight:800;color:var(--pri2)}
+.stat .box .n{font-size:12px;color:var(--mute);margin-top:2px}
+.bar{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar .n{width:76px;font-size:12px;color:var(--mute);flex:none}
+.bar .t{flex:1;background:#eef1f5;border-radius:6px;height:14px;overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--pri);border-radius:6px}
+.bar .v{width:40px;text-align:right;font-size:12px;color:var(--mute);flex:none}
+.flash{position:relative}
+.flash .q{font-size:16px;font-weight:600;margin:6px 0}
+.flash .back{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.flash img{max-width:100%;border-radius:8px;margin-top:8px}
+.empty{color:var(--mute);text-align:center;padding:30px 10px}
+a.b{text-decoration:none;display:inline-block}
+.chip-check{display:inline-flex;align-items:center;gap:5px;background:#f0f4f8;border-radius:999px;padding:6px 12px;font-size:13px;margin:0 6px 6px 0;cursor:pointer}
+.chip-check input{width:auto}
+.subj-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.subj-dot{width:10px;height:10px;border-radius:50%;background:var(--pri);flex:none}
+@media print{header,nav,.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<header><button id="backBtn" data-act="back">← 뒤로</button><h1 id="title">수능 암기장</h1><button data-act="settings">설정</button></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+<script>
+/* ---------- 유틸 ---------- */
+const esc = (s) => (s == null ? '' : String(s)).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nl = (s) => esc(s).replace(/\n/g, '<br>');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const $app = document.getElementById('app');
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = () => ymd(new Date());
+const addDays = (dateStr, n) => { const d = new Date(dateStr + 'T00:00:00'); d.setDate(d.getDate() + n); return ymd(d); };
+const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+const f = (id) => (document.getElementById(id)?.value || '').trim();
+
+/* ---------- 저장소 ---------- */
+const DB = (() => {
+  const dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('exam-coach', 1);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if (!db.objectStoreNames.contains('subjects')) db.createObjectStore('subjects', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('cards')) db.createObjectStore('cards', { keyPath: 'id' });
+      if (!db.objectStoreNames.contains('logs')) db.createObjectStore('logs', { keyPath: 'id' });
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  const tx = (store, mode, fn) => dbp.then((db) => new Promise((res, rej) => {
+    const t = db.transaction(store, mode); const s = t.objectStore(store);
+    const req = fn(s);
+    t.oncomplete = () => res(req && req.result);
+    t.onerror = () => rej(t.error);
+  }));
+  return {
+    all: (store) => tx(store, 'readonly', (s) => s.getAll()),
+    get: (store, id) => tx(store, 'readonly', (s) => s.get(id)),
+    put: (store, obj) => tx(store, 'readwrite', (s) => s.put(obj)),
+    del: (store, id) => tx(store, 'readwrite', (s) => s.delete(id)),
+  };
+})();
+
+const cfg = {
+  get name() { try { return localStorage.getItem('ec_name') || ''; } catch { return ''; } },
+  set name(v) { try { localStorage.setItem('ec_name', v); } catch {} },
+  get examDate() { try { return localStorage.getItem('ec_exam') || ''; } catch { return ''; } },
+  set examDate(v) { try { localStorage.setItem('ec_exam', v); } catch {} },
+};
+
+/* ---------- 간격 반복 (라이트너 방식) ---------- */
+const INTERVALS = [1, 2, 4, 7, 15, 30];
+function gradeCard(c, g) {
+  const t = today();
+  if (g === 'again') { c.box = 0; c.nextDate = addDays(t, 1); c.graduated = false; }
+  else if (g === 'hard') { c.nextDate = addDays(t, Math.max(1, Math.floor(INTERVALS[Math.min(c.box, INTERVALS.length - 1)] / 2))); }
+  else { c.box = (c.box || 0) + 1; if (c.box >= INTERVALS.length) { c.graduated = true; c.nextDate = null; } else { c.nextDate = addDays(t, INTERVALS[c.box - 1]); } }
+  c.history = c.history || []; c.history.push({ date: t, g });
+  return c;
+}
+
+/* ---------- 상태/렌더 ---------- */
+let S = { view: 'today', tab: 'today', cardId: null, msg: '' };
+let navDepth = 0;
+const snap = () => ({ view: S.view, tab: S.tab, cardId: S.cardId });
+function updateBack() { const b = document.getElementById('backBtn'); if (b) b.style.display = navDepth > 0 ? 'inline-block' : 'none'; }
+try { history.replaceState({ ec: 1, d: 0, S: snap() }, ''); } catch {}
+const go = (v, extra = {}) => {
+  const before = JSON.stringify(snap());
+  S = { ...S, view: v, msg: '', ...extra };
+  if (JSON.stringify(snap()) !== before) { navDepth++; try { history.pushState({ ec: 1, d: navDepth, S: snap() }, ''); } catch {} }
+  render(); window.scrollTo(0, 0); updateBack();
+};
+window.addEventListener('popstate', (e) => {
+  const st = e.state; if (!st || !st.ec) return;
+  navDepth = st.d; S = { ...S, ...st.S, msg: '' }; render(); window.scrollTo(0, 0); updateBack();
+});
+
+function setNav() {
+  const tabs = [['today', '오늘 복습'], ['cards', '오답노트'], ['log', '학습기록'], ['progress', '진도'], ['parent', '부모님 보기']];
+  document.getElementById('nav').innerHTML = tabs.map(([k, n]) => `<button class="${S.tab === k ? 'on' : ''}" data-act="tab" data-v="${k}">${n}</button>`).join('');
+}
+async function render() {
+  setNav();
+  try {
+    if (S.view === 'today') return viewToday();
+    if (S.view === 'cards') return viewCards();
+    if (S.view === 'cardForm') return viewCardForm();
+    if (S.view === 'log') return viewLog();
+    if (S.view === 'progress') return viewProgress();
+    if (S.view === 'parent') return viewParent();
+    if (S.view === 'settings') return viewSettings();
+  } catch (e) { $app.innerHTML = `<div class="card">오류: ${esc(e.message)}</div>`; }
+}
+
+/* ---------- 공통 데이터 ---------- */
+async function allData() {
+  const [subjects, cards, logs] = await Promise.all([DB.all('subjects'), DB.all('cards'), DB.all('logs')]);
+  const sMap = Object.fromEntries(subjects.map((s) => [s.id, s]));
+  return { subjects, cards, logs, sMap };
+}
+function streakOf(logs) {
+  const days = new Set(logs.filter((l) => (l.minutes || 0) > 0).map((l) => l.date));
+  let d = today(), n = 0;
+  if (!days.has(d)) { d = addDays(d, -1); if (!days.has(d)) return 0; }
+  while (days.has(d)) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+/* ---------- 오늘 복습 ---------- */
+async function viewToday() {
+  document.getElementById('title').textContent = '수능 암기장';
+  const { cards, sMap } = await allData();
+  const t = today();
+  const due = cards.filter((c) => !c.graduated && c.nextDate && c.nextDate <= t).sort((a, b) => a.nextDate.localeCompare(b.nextDate));
+  const dday = cfg.examDate ? daysBetween(t, cfg.examDate) : null;
+  $app.innerHTML = `
+  ${dday != null ? `<div class="card" style="text-align:center"><div class="mute">수능까지</div><div class="big">D${dday >= 0 ? '-' + dday : '+' + (-dday)}</div></div>` : `<div class="notice">설정에서 수능일을 넣으면 D-day가 표시돼요.</div>`}
+  <div class="card"><div class="row"><h2 class="grow">오늘 복습 (${due.length})</h2><button class="b sec" data-act="cardsTab">오답노트로</button></div>
+  <div class="mute">맞으면 간격이 늘어나고, 틀리면 다시 자주 보여줘요.</div></div>
+  ${S.msg ? `<div class="notice">${esc(S.msg)}</div>` : ''}
+  ${due.length ? due.map((c) => flashHtml(c, sMap)).join('') : '<div class="card empty">오늘 복습할 항목이 없어요. 오답노트에서 새로 추가해 보세요.</div>'}`;
+}
+function flashHtml(c, sMap) {
+  return `<div class="card flash cardrev" data-id="${c.id}">
+  <span class="tag pri">${esc(sMap[c.subjectId]?.name || '과목 없음')}</span>
+  <div class="q">${nl(c.front)}</div>
+  ${c.photo ? `<img src="${c.photo}">` : ''}
+  <div class="back" style="display:none">${nl(c.back)}</div>
+  <div class="row" style="margin-top:10px" data-role="revealRow"><button class="b sec" data-act="revealCard" data-id="${c.id}">정답 보기</button></div>
+  <div class="row" style="display:none;margin-top:8px" data-role="gradeRow">
+    <button class="b red" data-act="gradeCard" data-id="${c.id}" data-g="again">다시</button>
+    <button class="b sec" data-act="gradeCard" data-id="${c.id}" data-g="hard">애매</button>
+    <button class="b ok" data-act="gradeCard" data-id="${c.id}" data-g="good">맞음</button>
+  </div></div>`;
+}
+
+/* ---------- 오답노트 ---------- */
+async function viewCards() {
+  document.getElementById('title').textContent = '오답노트';
+  const { subjects, cards, sMap } = await allData();
+  S.cardFilter = S.cardFilter || 'active';
+  const list = cards.filter((c) => (S.cardFilter === 'active' ? !c.graduated : c.graduated)).sort((a, b) => (a.nextDate || '').localeCompare(b.nextDate || ''));
+  $app.innerHTML = `
+  <div class="card"><div class="row"><h2 class="grow">오답·암기 (${cards.length})</h2><button class="b" data-act="newCard">+ 추가</button></div>
+  <div class="row" style="margin-top:8px">
+    <button class="b ${S.cardFilter === 'active' ? '' : 'sec'}" data-act="cardFilter" data-v="active">학습 중 (${cards.filter((c) => !c.graduated).length})</button>
+    <button class="b ${S.cardFilter === 'done' ? '' : 'sec'}" data-act="cardFilter" data-v="done">완료 (${cards.filter((c) => c.graduated).length})</button>
+  </div></div>
+  ${!subjects.length ? '<div class="notice">먼저 과목을 추가해 주세요. "+ 추가"를 누르면 과목도 함께 만들 수 있어요.</div>' : ''}
+  ${list.length ? list.map((c) => `<div class="list-item" data-act="editCard" data-id="${c.id}">
+    <span class="tag pri">${esc(sMap[c.subjectId]?.name || '과목 없음')}</span>
+    ${c.graduated ? '<span class="tag ok">완료</span>' : `<span class="tag">다음 복습 ${esc(c.nextDate)}</span>`}
+    <div style="margin-top:4px">${esc((c.front || '').slice(0, 60))}</div></div>`).join('') : '<div class="card empty">아직 기록이 없어요.</div>'}`;
+}
+async function viewCardForm() {
+  const { subjects } = await allData();
+  const c = S.cardId ? await DB.get('cards', S.cardId) : {};
+  document.getElementById('title').textContent = c.id ? '오답 수정' : '오답·암기 추가';
+  $app.innerHTML = `<div class="card">
+  <label>과목</label>
+  <select id="c_subj">${subjects.map((s) => `<option value="${s.id}" ${c.subjectId === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}<option value="__new">+ 새 과목 추가</option></select>
+  <div id="c_newSubjWrap" style="display:none"><label>새 과목 이름</label><input id="c_newSubj" placeholder="예: 화법과 작문"></div>
+  <label>질문 / 틀린 문제</label><textarea id="c_front" placeholder="예: 이차함수 최댓값 구하는 공식">${esc(c.front)}</textarea>
+  <label>정답 / 설명</label><textarea id="c_back" placeholder="예: 꼭짓점의 y좌표가 최댓값(또는 최솟값)">${esc(c.back)}</textarea>
+  <label>사진 (선택)</label><input id="c_photo" type="file" accept="image/*">
+  <div id="c_photoPrev">${c.photo ? `<img src="${c.photo}" style="max-width:160px;border-radius:8px;margin-top:6px">` : ''}</div>
+  <div class="row" style="margin-top:14px"><button class="b" data-act="saveCard" data-id="${c.id || ''}">저장</button><button class="b sec" data-act="cardsTab">취소</button>
+  ${c.id ? `<span class="grow"></span><button class="b red" data-act="delCard" data-id="${c.id}">삭제</button>` : ''}</div></div>`;
+  document.getElementById('c_subj').onchange = (e) => { document.getElementById('c_newSubjWrap').style.display = e.target.value === '__new' ? '' : 'none'; };
+  let photoData = c.photo || null;
+  document.getElementById('c_photo').onchange = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = () => { photoData = r.result; document.getElementById('c_photoPrev').innerHTML = `<img src="${photoData}" style="max-width:160px;border-radius:8px;margin-top:6px">`; };
+    r.readAsDataURL(file);
+  };
+  window.__getPhoto = () => photoData;
+}
+
+/* ---------- 학습기록 ---------- */
+async function viewLog() {
+  document.getElementById('title').textContent = '학습기록';
+  const { subjects, logs } = await allData();
+  const sorted = logs.slice().sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  S.logDate = S.logDate || today();
+  S.logSubj = S.logSubj || [];
+  $app.innerHTML = `
+  <div class="card"><h3>오늘 공부 기록하기</h3>
+  <label>날짜</label><input id="l_date" type="date" value="${esc(S.logDate)}">
+  <label>공부한 과목</label><div id="l_subjWrap">${subjects.length ? subjects.map((s) => `<label class="chip-check"><input type="checkbox" value="${s.id}" ${S.logSubj.includes(s.id) ? 'checked' : ''}> ${esc(s.name)}</label>`).join('') : '<div class="mute">오답노트에서 과목을 먼저 추가해 주세요.</div>'}</div>
+  <label>공부 시간 (분)</label><input id="l_min" type="number" min="0" placeholder="예: 90">
+  <label>한 줄 메모</label><textarea id="l_note" style="min-height:50px" placeholder="예: 수학 오답노트 정리, 집중 잘 됨"></textarea>
+  <div class="row" style="margin-top:12px"><button class="b" data-act="saveLog">기록 저장</button></div></div>
+  ${S.msg ? `<div class="notice">${esc(S.msg)}</div>` : ''}
+  <h3>최근 기록</h3>
+  ${sorted.length ? sorted.slice(0, 30).map((l) => `<div class="list-item" style="cursor:default"><b>${esc(l.date)}</b> <span class="tag">${l.minutes || 0}분</span>
+    ${(l.subjects || []).map((sid) => `<span class="tag pri">${esc(subjects.find((s) => s.id === sid)?.name || '')}</span>`).join('')}
+    ${l.note ? `<div class="mute" style="margin-top:4px">${esc(l.note)}</div>` : ''}
+    <div class="row" style="margin-top:6px"><button class="b red" data-act="delLog" data-id="${l.id}">삭제</button></div></div>`).join('') : '<div class="card empty">아직 기록이 없어요.</div>'}`;
+  document.getElementById('l_date').onchange = (e) => { S.logDate = e.target.value; };
+  document.querySelectorAll('#l_subjWrap input[type=checkbox]').forEach((cb) => { cb.onchange = () => { S.logSubj = [...document.querySelectorAll('#l_subjWrap input:checked')].map((x) => x.value); }; });
+}
+
+/* ---------- 진도 ---------- */
+function bars(rows, max) { return rows.map(([n, v]) => `<div class="bar"><div class="n">${esc(n)}</div><div class="t"><i style="width:${max ? (v / max) * 100 : 0}%"></i></div><div class="v">${v}</div></div>`).join(''); }
+async function viewProgress() {
+  document.getElementById('title').textContent = '진도';
+  const { subjects, cards, logs } = await allData();
+  const t = today();
+  const days7 = [...Array(7)].map((_, i) => addDays(t, i - 6));
+  const minByDay = Object.fromEntries(days7.map((d) => [d, 0]));
+  logs.forEach((l) => { if (minByDay[l.date] != null) minByDay[l.date] += (l.minutes || 0); });
+  const maxMin = Math.max(1, ...Object.values(minByDay));
+  const weekTotal = Object.values(minByDay).reduce((a, b) => a + b, 0);
+  const streak = streakOf(logs);
+  const dday = cfg.examDate ? daysBetween(t, cfg.examDate) : null;
+  const bySubj = subjects.map((s) => { const cs = cards.filter((c) => c.subjectId === s.id); return [s.name, cs.length, cs.filter((c) => c.graduated).length]; });
+  const totalCards = cards.length, totalDone = cards.filter((c) => c.graduated).length;
+  $app.innerHTML = `
+  <div class="stat">
+  ${dday != null ? `<div class="box"><div class="v">D${dday >= 0 ? '-' + dday : '+' + (-dday)}</div><div class="n">수능까지</div></div>` : ''}
+  <div class="box"><div class="v">${streak}일</div><div class="n">연속 학습</div></div>
+  <div class="box"><div class="v">${weekTotal}분</div><div class="n">최근 7일 학습</div></div>
+  <div class="box"><div class="v">${totalCards ? Math.round(totalDone / totalCards * 100) : 0}%</div><div class="n">전체 복습 완료율</div></div>
+  </div>
+  <div class="card"><h3>최근 7일 학습 시간(분)</h3>${bars(days7.map((d) => [d.slice(5), minByDay[d]]), maxMin)}</div>
+  <div class="card"><h3>과목별 오답·암기 수</h3>${bySubj.length ? bars(bySubj.map(([n, v]) => [n, v]), Math.max(1, ...bySubj.map((x) => x[1]))) : '<div class="mute">등록된 과목이 없어요.</div>'}</div>
+  <div class="card"><h3>과목별 완료율</h3>${bySubj.length ? bySubj.map(([n, v, d]) => `<div class="bar"><div class="n">${esc(n)}</div><div class="t"><i style="width:${v ? (d / v) * 100 : 0}%"></i></div><div class="v">${v ? Math.round(d / v * 100) : 0}%</div></div>`).join('') : '<div class="mute">등록된 과목이 없어요.</div>'}</div>`;
+}
+
+/* ---------- 부모님 보기 (요약만) ---------- */
+async function viewParent() {
+  document.getElementById('title').textContent = '부모님 보기';
+  const { cards, logs } = await allData();
+  const t = today();
+  const todayDone = logs.some((l) => l.date === t && (l.minutes || 0) > 0);
+  const days7 = [...Array(7)].map((_, i) => addDays(t, i - 6));
+  const weekTotal = logs.filter((l) => days7.includes(l.date)).reduce((a, l) => a + (l.minutes || 0), 0);
+  const streak = streakOf(logs);
+  const totalCards = cards.length, totalDone = cards.filter((c) => c.graduated).length;
+  const dday = cfg.examDate ? daysBetween(t, cfg.examDate) : null;
+  let msg = '학습 기록이 아직 없어요. 오늘부터 한 줄이라도 기록해 보도록 응원해 주세요.';
+  if (streak >= 7) msg = `${streak}일 연속으로 꾸준히 공부하고 있어요. 칭찬해 주세요!`;
+  else if (streak >= 2) msg = `${streak}일째 꾸준히 이어가고 있어요.`;
+  else if (todayDone) msg = '오늘 학습을 기록했어요.';
+  else if (logs.length) msg = '오늘은 아직 기록이 없어요. 부담 주지 않고 가볍게 물어봐 주세요.';
+  $app.innerHTML = `
+  <div class="notice">이 화면은 학습량과 꾸준함만 보여줘요. 오답 내용이나 점수는 나오지 않아요.</div>
+  ${dday != null ? `<div class="card" style="text-align:center"><div class="mute">수능까지</div><div class="big">D${dday >= 0 ? '-' + dday : '+' + (-dday)}</div></div>` : ''}
+  <div class="card"><h3>${esc(msg)}</h3></div>
+  <div class="stat">
+  <div class="box"><div class="v">${todayDone ? '✅ 함' : '—'}</div><div class="n">오늘 학습</div></div>
+  <div class="box"><div class="v">${streak}일</div><div class="n">연속 학습</div></div>
+  <div class="box"><div class="v">${weekTotal}분</div><div class="n">최근 7일</div></div>
+  <div class="box"><div class="v">${totalCards ? Math.round(totalDone / totalCards * 100) : 0}%</div><div class="n">복습 완료율</div></div>
+  </div>`;
+}
+
+/* ---------- 설정 ---------- */
+async function viewSettings() {
+  document.getElementById('title').textContent = '설정';
+  const { subjects } = await allData();
+  $app.innerHTML = `<div class="card"><h3>기본 정보</h3>
+  <label>수험생 이름(선택)</label><input id="s_name" value="${esc(cfg.name)}" placeholder="예: 민준">
+  <label>수능일</label><input id="s_exam" type="date" value="${esc(cfg.examDate)}">
+  <div class="row" style="margin-top:12px"><button class="b" data-act="saveSettings">저장</button></div></div>
+  <div class="card"><h3>과목 관리</h3>
+  <div id="subjList">${subjects.map((s) => `<div class="subj-row"><span class="subj-dot"></span><span class="grow">${esc(s.name)}</span><button class="b red" data-act="delSubject" data-id="${s.id}">삭제</button></div>`).join('') || '<div class="mute">등록된 과목이 없어요.</div>'}</div>
+  <div class="row" style="margin-top:10px"><input id="newSubj" placeholder="새 과목 이름"><button class="b" data-act="addSubject">추가</button></div></div>
+  <div class="card"><h3>데이터 백업/복원</h3>
+  <div class="mute">기록은 이 기기에만 저장돼요. 기기를 바꾸기 전에 백업하세요.</div>
+  <div class="row" style="margin-top:12px"><button class="b" data-act="exportData">백업 파일 저장</button>
+  <label class="b sec" style="margin:0;cursor:pointer">복원하기<input id="imp" type="file" accept=".json" style="display:none"></label></div>
+  <div class="row" style="margin-top:10px"><button class="b red" data-act="resetData">전체 삭제</button></div>
+  ${S.msg ? `<div class="notice" style="margin-top:12px">${esc(S.msg)}</div>` : ''}</div>`;
+  document.getElementById('imp').onchange = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const d = JSON.parse(await file.text());
+      for (const s of d.subjects || []) await DB.put('subjects', s);
+      for (const c of d.cards || []) await DB.put('cards', c);
+      for (const l of d.logs || []) await DB.put('logs', l);
+      S.msg = `복원 완료: 과목 ${(d.subjects || []).length}개, 기록 ${(d.cards || []).length}개, 학습기록 ${(d.logs || []).length}개`;
+    } catch { S.msg = '올바른 백업 파일이 아니에요.'; }
+    render();
+  };
+}
+
+/* ============ 이벤트 ============ */
+document.addEventListener('click', async (e) => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  if (act === 'tab') return go(el.dataset.v, { tab: el.dataset.v });
+  if (act === 'back') { if (navDepth > 0) history.back(); else go('today', { tab: 'today' }); return; }
+  if (act === 'settings') return go('settings');
+  if (act === 'cardsTab') return go('cards', { tab: 'cards' });
+
+  if (act === 'revealCard') {
+    const box = el.closest('.cardrev');
+    box.querySelector('.back').style.display = '';
+    box.querySelector('[data-role=revealRow]').style.display = 'none';
+    box.querySelector('[data-role=gradeRow]').style.display = '';
+    return;
+  }
+  if (act === 'gradeCard') {
+    const c = await DB.get('cards', id); if (!c) return;
+    gradeCard(c, el.dataset.g);
+    await DB.put('cards', c);
+    return render();
+  }
+  if (act === 'newCard') return go('cardForm', { cardId: null });
+  if (act === 'editCard') return go('cardForm', { cardId: id });
+  if (act === 'cardFilter') { S.cardFilter = el.dataset.v; return render(); }
+  if (act === 'saveCard') {
+    let subjId = document.getElementById('c_subj').value;
+    const newName = f('c_newSubj');
+    if (subjId === '__new') {
+      if (!newName) { S.msg = '새 과목 이름을 입력해 주세요.'; return render(); }
+      const s = { id: uid(), name: newName }; await DB.put('subjects', s); subjId = s.id;
+    }
+    if (!subjId) { S.msg = '과목을 먼저 추가해 주세요.'; return render(); }
+    const front = f('c_front'); if (!front) { S.msg = '질문/틀린 문제를 입력해 주세요.'; return render(); }
+    const c = id ? await DB.get('cards', id) : { id: uid(), box: 0, nextDate: addDays(today(), 1), graduated: false, history: [], createdAt: today() };
+    c.subjectId = subjId; c.front = front; c.back = f('c_back'); c.photo = (window.__getPhoto && window.__getPhoto()) || c.photo || null;
+    await DB.put('cards', c);
+    return go('cards', { tab: 'cards' });
+  }
+  if (act === 'delCard') { if (!confirm('이 기록을 삭제할까요?')) return; await DB.del('cards', id); return go('cards', { tab: 'cards' }); }
+
+  if (act === 'saveLog') {
+    const minutes = Number(f('l_min')) || 0;
+    const subjIds = [...document.querySelectorAll('#l_subjWrap input:checked')].map((x) => x.value);
+    const date = document.getElementById('l_date').value || today();
+    if (!minutes && !subjIds.length && !f('l_note')) { S.msg = '공부 시간이나 과목, 메모 중 하나는 입력해 주세요.'; return render(); }
+    await DB.put('logs', { id: uid(), date, minutes, subjects: subjIds, note: f('l_note') });
+    S.msg = '기록했어요.'; S.logSubj = [];
+    return render();
+  }
+  if (act === 'delLog') { if (!confirm('이 기록을 삭제할까요?')) return; await DB.del('logs', id); return render(); }
+
+  if (act === 'saveSettings') {
+    cfg.name = f('s_name'); cfg.examDate = document.getElementById('s_exam').value;
+    return go('today', { tab: 'today' });
+  }
+  if (act === 'addSubject') {
+    const name = f('newSubj'); if (!name) return;
+    await DB.put('subjects', { id: uid(), name });
+    return render();
+  }
+  if (act === 'delSubject') {
+    const { cards } = await allData();
+    if (cards.some((c) => c.subjectId === id)) { S.msg = '이 과목에 등록된 오답·암기 기록이 있어서 삭제할 수 없어요. 먼저 오답노트에서 정리해 주세요.'; return render(); }
+    await DB.del('subjects', id); return render();
+  }
+  if (act === 'exportData') {
+    const { subjects, cards, logs } = await allData();
+    const blob = new Blob([JSON.stringify({ subjects, cards, logs, exportedAt: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '수능암기장_백업_' + today() + '.json'; a.click();
+    return;
+  }
+  if (act === 'resetData') {
+    if (!confirm('모든 과목·오답·학습기록이 삭제돼요. 계속할까요?')) return;
+    const { subjects, cards, logs } = await allData();
+    for (const x of subjects) await DB.del('subjects', x.id);
+    for (const x of cards) await DB.del('cards', x.id);
+    for (const x of logs) await DB.del('logs', x.id);
+    return render();
+  }
+});
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+render();
+</script>
+</body>
+</html>
